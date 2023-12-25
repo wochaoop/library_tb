@@ -1,9 +1,8 @@
 import util.DBUtil;
-
-import util.DBUtil;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 public class UserRegister extends UniversalWindow {//用户注册类
 
     public UserRegister(String title, int w, int h) {

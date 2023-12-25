@@ -3,7 +3,8 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
-public class MainWindow extends MainWindowTemplate {
+
+public class MainWindow extends UniversalWindow {
     MainWindow(String title,int w,int h){
         super(title,w,h);
 

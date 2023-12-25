@@ -1,3 +1,5 @@
+package ui;
+
 import util.DBUtil;
 import javax.swing.*;
 import java.awt.*;
