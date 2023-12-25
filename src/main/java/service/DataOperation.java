@@ -10,7 +10,7 @@ public class DataOperation {
     private Object[][] data=null;//二维数组来保存查询的数据
     private int rscount=0;//行数，也是记录数
     private int colCount=0;//列数
-    private DBUtil dbUtil=null;//数据库对象
+    private final DBUtil dbUtil;//数据库对象
     public DataOperation(){//构造方法主要用来产生一个数据库对象并建立连接
         dbUtil=new DBUtil();
         dbUtil.getconn();
@@ -21,7 +21,7 @@ public class DataOperation {
     public int getRscount() {//返回数组的行数
         return rscount;
     }
-    public int getResultCount(String sql){//输入查询语句获得记录数
+    public void getResultCount(String sql){//输入查询语句获得记录数
         dbUtil.exequerystmt(sql);
         try {
             if (dbUtil.rs.next())
@@ -29,7 +29,6 @@ public class DataOperation {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return rscount;
     }
     public void initData(int colCount){//初始化二维数组
         this.colCount=colCount;

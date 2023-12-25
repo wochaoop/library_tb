@@ -13,8 +13,7 @@ public class UserRegister extends UniversalWindow {//用户注册类
         JTextField jTextField = new JTextField();
         JPasswordField[] jPasswordFields = {new JPasswordField(), new JPasswordField()};
         JButton[] jButtons = {new JButton("注册"), new JButton("重置")};
-        for (int i = 0; i < jLabels.length; i++)
-            jLabels[i].setFont(Const.font);
+        for (JLabel jLabel : jLabels) jLabel.setFont(Const.font);
         jTextField.setFont(Const.font);
         jPasswordFields[0].setFont(Const.font);
         jPasswordFields[1].setFont(Const.font);
@@ -28,45 +27,39 @@ public class UserRegister extends UniversalWindow {//用户注册类
         add(jPasswordFields[1]).setBounds(120, 240, 160, 40);
         add(jButtons[0]).setBounds(90, 310, 100, 40);
         add(jButtons[1]).setBounds(210, 310, 100, 40);
-        jButtons[1].addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                jTextField.setText("");
-                jPasswordFields[0].setText("");
-                jPasswordFields[1].setText("");
-            }
+        jButtons[1].addActionListener(e -> {
+            jTextField.setText("");
+            jPasswordFields[0].setText("");
+            jPasswordFields[1].setText("");
         });
-        jButtons[0].addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                DBUtil dbUtil = new DBUtil();
-                dbUtil.getconn();
-                String yhm = jTextField.getText().trim();
-                String mm1 = new String(jPasswordFields[0].getPassword()).trim();
-                String mm2 = new String(jPasswordFields[0].getPassword()).trim();
-                String sql = "select * from tb_manager where name=?";
-                dbUtil.exequeryppst(sql, yhm);
-                try {
-                    if (dbUtil.rs.next())
-                        JOptionPane.showMessageDialog(null, "该用户名已经被使用");
-                    else if (mm1.equals(null) || mm1.equals("") || mm2.equals(null) || mm2.equals(""))
-                        JOptionPane.showMessageDialog(null, "密码不能为空");
-                    else if (!mm1.equals(mm2))
-                        JOptionPane.showMessageDialog(null, "密码必须一致");
-                    else {
-                        sql = "insert into tb_manager(name,pwd) values(?,?)";
-                        dbUtil.exeupdateppst(sql, yhm, mm1);
-                        JOptionPane.showMessageDialog(null, "注册成功");
-                        MainWindow mainWindow = new MainWindow("图书管理系统", 800, 600);
-                        if (winStack.size() > 0)
-                            winStack.peek().setVisible(false);
-                        dispose();
-                        mainWindow.setWinStack(mainWindow, winStack);
-                        mainWindow.addWindowListener(new WindowOp());
-                    }
-                } catch (Exception e1) {
-                    e1.printStackTrace();
+        jButtons[0].addActionListener(e -> {
+            DBUtil dbUtil = new DBUtil();
+            dbUtil.getconn();
+            String yhm = jTextField.getText().trim();
+            String mm1 = new String(jPasswordFields[0].getPassword()).trim();
+            String mm2 = new String(jPasswordFields[0].getPassword()).trim();
+            String sql = "select * from tb_manager where name=?";
+            dbUtil.exequeryppst(sql, yhm);
+            try {
+                if (dbUtil.rs.next())
+                    JOptionPane.showMessageDialog(null, "该用户名已经被使用");
+                else if (mm1.isEmpty() || mm2.isEmpty())
+                    JOptionPane.showMessageDialog(null, "密码不能为空");
+                else if (!mm1.equals(mm2))
+                    JOptionPane.showMessageDialog(null, "密码必须一致");
+                else {
+                    sql = "insert into tb_manager(name,pwd) values(?,?)";
+                    dbUtil.exeupdateppst(sql, yhm, mm1);
+                    JOptionPane.showMessageDialog(null, "注册成功");
+                    MainWindow mainWindow = new MainWindow("图书管理系统", 800, 600);
+                    if (!winStack.isEmpty())
+                        winStack.peek().setVisible(false);
+                    dispose();
+                    mainWindow.setWinStack(mainWindow, winStack);
+                    mainWindow.addWindowListener(new WindowOp());
                 }
+            } catch (Exception e1) {
+                e1.printStackTrace();
             }
         });
         setVisible(true);

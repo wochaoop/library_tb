@@ -12,7 +12,7 @@ public class login {
         UniversalWindow universalWindow=new UniversalWindow("登录界面",400,240);
         universalWindow.setWinStack(universalWindow,stack);
         universalWindow.addWindowListener(new WindowOp());
-        Font font=new Font("宋体",Font.CENTER_BASELINE,20);
+        Font font=new Font("宋体", Font.BOLD,20);
         JLabel jLabel1=new JLabel("账  号:");
         jLabel1.setFont(font);
         JLabel jLabel2=new JLabel("密  码:");
@@ -35,38 +35,32 @@ public class login {
         universalWindow.add(jButton2).setBounds(140,140,100,35);
         universalWindow.add(jButton3).setBounds(250,140,100,35);
         universalWindow.setVisible(true);
-        jButton2.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                username.setText("");
-                password.setText("");
-            }
+        jButton2.addActionListener(e -> {
+            username.setText("");
+            password.setText("");
         });
-        jButton1.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String yhm=username.getText().trim();
-                String mm=new String(password.getPassword()).trim();
-                String sql="select * from tb_manager where name=?";
-                DBUtil dbUtil=new DBUtil();
-                dbUtil.getconn();
-                dbUtil.exequeryppst(sql,yhm);
-                try {
-                    if (dbUtil.rs.next())
-                        if (dbUtil.rs.getString("pwd").equals(mm)){
-                            MainWindow mainWindow= new MainWindow("图书管理系统",800,600);
-                            stack.peek().setVisible(false);
-                            mainWindow.setWinStack(mainWindow,stack);
-                            mainWindow.addWindowListener(new WindowOp());
+        jButton1.addActionListener(e -> {
+            String yhm=username.getText().trim();
+            String mm=new String(password.getPassword()).trim();
+            String sql="select * from tb_manager where name=?";
+            DBUtil dbUtil=new DBUtil();
+            dbUtil.getconn();
+            dbUtil.exequeryppst(sql,yhm);
+            try {
+                if (dbUtil.rs.next())
+                    if (dbUtil.rs.getString("pwd").equals(mm)){
+                        MainWindow mainWindow= new MainWindow("图书管理系统",800,600);
+                        stack.peek().setVisible(false);
+                        mainWindow.setWinStack(mainWindow,stack);
+                        mainWindow.addWindowListener(new WindowOp());
 
-                        }
-                        else
-                            JOptionPane.showMessageDialog(null,"密码错误成功");
+                    }
                     else
-                        JOptionPane.showMessageDialog(null,"查无此用户");
-                } catch (SQLException ex) {
-                    throw new RuntimeException(ex);
-                }
+                        JOptionPane.showMessageDialog(null,"密码错误成功");
+                else
+                    JOptionPane.showMessageDialog(null,"查无此用户");
+            } catch (SQLException ex) {
+                throw new RuntimeException(ex);
             }
         });
     }

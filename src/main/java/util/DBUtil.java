@@ -13,12 +13,13 @@ public class DBUtil {
             System.out.println("数据库驱动加载失败");
         }
     }
-    private String url="jdbc:mysql://localhost:3306/library?serverTimezone=GMT%2B8";
-    private String username="root";
-    private String password="123456";
+
     public  void  getconn(){//建立连接
         try {
-            conn= DriverManager.getConnection(url,username,password);
+            String url = "jdbc:mysql://localhost:3306/library?serverTimezone=GMT%2B8";
+            String username = "root";
+            String password = "123456";
+            conn= DriverManager.getConnection(url, username, password);
             stmt=conn.createStatement();
         }catch (Exception e2){
             System.out.println("数据库连接失败");
@@ -34,10 +35,9 @@ public class DBUtil {
         try {
             ppst=conn.prepareStatement(sql);
             int i=1;
-            if (x.length>0)
-                for (String p:x) {
-                    ppst.setString(i++,p);
-                };
+            for (String p:x) {
+                ppst.setString(i++,p);
+            }
             ppst.executeUpdate();
         }catch (Exception e){
             e.printStackTrace();
@@ -48,10 +48,9 @@ public class DBUtil {
         try {
             ppst=conn.prepareStatement(sql);
             int i=1;
-            if (x.length>0)
-                for (String p:x) {
-                    ppst.setString(i++,p);
-                }
+            for (String p:x) {
+                ppst.setString(i++,p);
+            }
             rs=ppst.executeQuery();
         }catch (Exception e){
         }
