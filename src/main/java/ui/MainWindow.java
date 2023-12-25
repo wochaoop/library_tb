@@ -1,11 +1,14 @@
+package ui;
+
 import service.DataOperation;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 
 public class MainWindow extends UniversalWindow {
-    MainWindow(String title,int w,int h){
+    public MainWindow(String title, int w, int h){
         super(title,w,h);
 
         JPanel right=new JPanel();//右侧查询按钮面板
@@ -23,7 +26,7 @@ public class MainWindow extends UniversalWindow {
         dataOperation.initData(Const.tableBookTitle.length);
         String sqlbook0="select id,bookname,author,isbn,price,storage from tb_bookinfo";
         Object[][] data= (Object[][]) dataOperation.getData(sqlbook0);
-        DefaultTableModel defaultTableModel0=new DefaultTableModel(data,Const.tableBookTitle);
+        DefaultTableModel defaultTableModel0=new DefaultTableModel(data, Const.tableBookTitle);
         dataOperation.dbclose();
 //        util.DBUtil dbUtil=new util.DBUtil();//创建数据库对象
 //        dbUtil.getconn();//建立连接
@@ -35,7 +38,7 @@ public class MainWindow extends UniversalWindow {
 //        } catch (SQLException ex) {
 //            ex.printStackTrace();
 //        }
-//        String[][] tableData =new String[rscount][Const.tableBookTitle.length];//根据行数创建数组
+//        String[][] tableData =new String[rscount][ui.Const.tableBookTitle.length];//根据行数创建数组
 //        try {
 //            int i=0;
 //            dbUtil.exequerystmt("select * from tb_bookinfo");//重新执行查询
@@ -52,7 +55,7 @@ public class MainWindow extends UniversalWindow {
 //            e.printStackTrace();
 //        }
 
-//        DefaultTableModel defaultTableModel = new DefaultTableModel(tableData,Const.tableBookTitle);//创建表格模型
+//        DefaultTableModel defaultTableModel = new DefaultTableModel(tableData,ui.Const.tableBookTitle);//创建表格模型
         JTable jTable = new JTable(defaultTableModel0);//创建表格
         jTable.setRowHeight(35);//设置行高
         jTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);//设置列宽
@@ -74,14 +77,14 @@ public class MainWindow extends UniversalWindow {
                 dataOperation.getResultCount("select count(*) as count from tb_bookinfo");
                 dataOperation.initData(Const.tableBookTitle.length);
                 Object[][] data= (Object[][]) dataOperation.getData(sqlbook1,para,para,para);
-                DefaultTableModel defaultTableModel1=new DefaultTableModel(data,Const.tableBookTitle);
+                DefaultTableModel defaultTableModel1=new DefaultTableModel(data, Const.tableBookTitle);
                 jTable.setModel(defaultTableModel1);//重新设置表格模型
 //                while (defaultTableModel.getRowCount()>0)//删除原来表格的数据
 //                    defaultTableModel.removeRow(0);
 //                util.DBUtil dbUtil0=new util.DBUtil();//定义一个数据库对象
 //                dbUtil0.getconn();
 //                dbUtil0.exequeryppst(sqlbook0,para,para,para);
-//                Object a[]=new Object[Const.tableBookTitle.length];//定义一个临时数组来保存查询的数据
+//                Object a[]=new Object[ui.Const.tableBookTitle.length];//定义一个临时数组来保存查询的数据
 //                try {
 //                    while (dbUtil0.rs.next()) {//把记录集的数据写入到数组中
 //                        a[0]=dbUtil0.rs.getString("id");
@@ -119,7 +122,7 @@ public class MainWindow extends UniversalWindow {
 //                }
 //                dbUtil1.exequeryppst(sqlbook1,para,para,para);
 //                try {
-//                    tableData1=new String[rscount][Const.tableBorrowTitle.length];//根据内容重新定义二维数组
+//                    tableData1=new String[rscount][ui.Const.tableBorrowTitle.length];//根据内容重新定义二维数组
 //                    int i=0;
 //                    while (dbUtil1.rs.next()) {//把记录集的数据写入到数组中
 //                        tableData1[i][0] = dbUtil1.rs.getString("id");
@@ -133,12 +136,12 @@ public class MainWindow extends UniversalWindow {
 //                }catch (Exception e1){
 //                    e1.printStackTrace();
 //                }
-//                DefaultTableModel defaultTableModel1=new DefaultTableModel(tableData1,Const.tableBorrowTitle);
+//                DefaultTableModel defaultTableModel1=new DefaultTableModel(tableData1,ui.Const.tableBorrowTitle);
                 DataOperation dataOperation=new DataOperation();
                 dataOperation.getResultCount("select count(*) as count from tb_borrowview");
                 dataOperation.initData(Const.tableBorrowTitle.length);
                 Object[][] data= (Object[][]) dataOperation.getData(sqlbook1,para,para,para);
-                DefaultTableModel defaultTableModel1=new DefaultTableModel(data,Const.tableBorrowTitle);
+                DefaultTableModel defaultTableModel1=new DefaultTableModel(data, Const.tableBorrowTitle);
                 jTable.setModel(defaultTableModel1);//重新设置表格模型
                 jTable.repaint();//重新绘制表格
             }
@@ -152,7 +155,7 @@ public class MainWindow extends UniversalWindow {
                 dataOperation.getResultCount("select count(*) as count from tb_readerview");
                 dataOperation.initData(Const.tableReaderTitle.length);
                 Object[][] data= (Object[][]) dataOperation.getData(sqlbook2,para,para,para);
-                DefaultTableModel defaultTableModel2=new DefaultTableModel(data,Const.tableReaderTitle);
+                DefaultTableModel defaultTableModel2=new DefaultTableModel(data, Const.tableReaderTitle);
                 jTable.setModel(defaultTableModel2);//重新设置表格模型
                 jTable.repaint();//重新绘制表格
                 dataOperation.dbclose();
