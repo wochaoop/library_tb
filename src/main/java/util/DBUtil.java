@@ -1,75 +1,91 @@
 package util;
 
 import java.sql.*;
+
 public class DBUtil {
-    public Connection conn=null;
-    public Statement stmt=null;
-    public ResultSet rs=null;
-    public PreparedStatement ppst=null;
-    static{
+    private Connection conn = null;
+    private Statement stmt = null;
+    public ResultSet rs = null;
+    private PreparedStatement ppst = null;
+
+    static {
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
-        }catch (Exception e1){
+        } catch (ClassNotFoundException e) {
             System.out.println("数据库驱动加载失败");
-        }
-    }
-
-    public  void  getconn(){//建立连接
-        try {
-            String url = "jdbc:mysql://localhost:3306/library?serverTimezone=GMT%2B8";
-            String username = "root";
-            String password = "123456";
-            conn= DriverManager.getConnection(url, username, password);
-            stmt=conn.createStatement();
-        }catch (Exception e2){
-            System.out.println("数据库连接失败");
-        }
-    }
-    public void exequerystmt(String sql){//执行查询语句
-        try {
-            rs = stmt.executeQuery(sql);
-        }catch (Exception e3){
-        }
-    }
-    public void exeupdateppst(String sql,String...x){
-        try {
-            ppst=conn.prepareStatement(sql);
-            int i=1;
-            for (String p:x) {
-                ppst.setString(i++,p);
-            }
-            ppst.executeUpdate();
-        }catch (Exception e){
             e.printStackTrace();
         }
     }
 
-    public void exequeryppst(String sql,String...x){
+    public void getconn() {
         try {
-            ppst=conn.prepareStatement(sql);
-            int i=1;
-            for (String p:x) {
-                ppst.setString(i++,p);
-            }
-            rs=ppst.executeQuery();
-        }catch (Exception e){
+            String url = "jdbc:mysql://localhost:3306/library?serverTimezone=GMT%2B8";
+            String username = "root";
+            String password = "123456";
+            conn = DriverManager.getConnection(url, username, password);
+            stmt = conn.createStatement();
+        } catch (SQLException e) {
+            System.out.println("数据库连接失败");
+            e.printStackTrace();
         }
     }
 
-    public void exeupdate(String sql){//执行增删改语句
+    public void exequerystmt(String sql) {
+        try {
+            rs = stmt.executeQuery(sql);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void exeupdateppst(String sql, String... x) {
+        try {
+            ppst = conn.prepareStatement(sql);
+            for (int i = 0; i < x.length; i++) {
+                ppst.setString(i + 1, x[i]);
+            }
+            ppst.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
+        }
+    }
+
+    public void exequeryppst(String sql, String... x) {
+        try {
+            ppst = conn.prepareStatement(sql);
+            for (int i = 0; i < x.length; i++) {
+                ppst.setString(i + 1, x[i]);
+            }
+            rs = ppst.executeQuery();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void exeupdate(String sql) {
         try {
             stmt.executeUpdate(sql);
-        }catch (Exception e3){
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            closeResources();
         }
     }
-    public  void  close(){//关闭释放资源
+
+    public void close() {
+        closeResources();
+    }
+
+    private void closeResources() {
         try {
-            if (rs!=null)     rs.close();
-            if (stmt!=null)   stmt.close();
-            if (conn!=null)   conn.close();
-        }catch (Exception e4){
-
+            if (rs != null) rs.close();
+            if (stmt != null) stmt.close();
+            if (ppst != null) ppst.close();
+            if (conn != null) conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-
     }
 }

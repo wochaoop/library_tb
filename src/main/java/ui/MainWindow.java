@@ -2,66 +2,190 @@ package ui;
 
 import service.DataOperation;
 import util.DBUtil;
+
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
 import java.sql.SQLException;
-public class MainWindow extends UniversalWindow {
-    MainWindow(String title,int w,int h){
-        super(title,w,h);
-        setTitle(title);
-        JMenuBar  menuBar=new JMenuBar ();
-        JMenu[] menu =new JMenu[Const.menuTitle.length];
-        for (int i=0;i<menu.length;i++) {
-            menu[i] = new JMenu(Const.menuTitle[i]);
-            menu[i].setFont(Const.font);
-            menuBar.add(menu[i]);
-        }
-        setLayout(new BorderLayout());
-        JPanel top = new JPanel();//顶部菜单栏
-        top.setPreferredSize(new Dimension(getWidth(),40));//设置宽和高
-        FlowLayout flowLayout=new FlowLayout();
-        flowLayout.setAlignment(FlowLayout.LEFT);//设置为左对齐
-        top.setLayout(flowLayout);//设置布局
-        top.add(menuBar);//添加菜单栏
-        add(top,BorderLayout.NORTH);//放置到窗口的NORTH
-        JPanel right=new JPanel();//右侧查询按钮面板
-        right.setPreferredSize(new Dimension((int)(getWidth()*0.2),600));//设置右侧的大小
-        add(right,BorderLayout.EAST);//放置到窗口的EAST
 
-        JPanel bottom = new JPanel();//底部版权信息
-        JLabel bottomText=new JLabel("LibrayManagementSystem version 1.0  CopyRight:23983873@qq.com");
+public class MainWindow extends UniversalWindow {
+
+    private DefaultTableModel defaultTableModel;
+    private JTable jTable;
+
+    MainWindow(String title, int w, int h) {
+        super(title, w, h);
+        initializeUI();
+        setupListeners();
+        loadBookInfoData();
+        setVisible(true);
+    }
+
+    private void initializeUI() {
+        createMenu();
+        createTopPanel();
+        createRightPanel();
+        createBottomPanel();
+        createTable();
+    }
+
+    private void createMenu() {
+        JMenuBar menuBar = new JMenuBar();
+        for (int i = 0; i < Const.menuTitle.length; i++) {
+            JMenuItem[] menuItems = getMenuItems(i);
+            for (JMenuItem menuItem : menuItems) {
+                menuItem.addActionListener(e -> handleMenuItemClick(menuItem.getText()));
+            }
+        }
+    }
+
+    private void createTopPanel() {
+        JPanel top = new JPanel();
+        top.setPreferredSize(new Dimension(getWidth(), 40));
+        top.setLayout(new FlowLayout(FlowLayout.LEFT));
+        top.add(new JMenuBar());
+        add(top, BorderLayout.NORTH);
+    }
+
+    private void createRightPanel() {
+        JPanel right = new JPanel();
+        right.setPreferredSize(new Dimension((int) (getWidth() * 0.2), 600));
+        add(right, BorderLayout.EAST);
+        JTextField[] jTextFields = {new JTextField(), new JTextField(), new JTextField()};
+        JButton[] jButtons = {new JButton("图书查询"), new JButton("借阅查询"), new JButton("读者查询")};
+        for (int j = 0; j < jTextFields.length; j++) {
+            right.add(jTextFields[j]).setBounds((int) (getWidth() * 0.2 - 110) / 2, 30 + j * 120, 110, 30);
+            right.add(jButtons[j]).setBounds((int) (getWidth() * 0.2 - 100) / 2, 70 + j * 120, 100, 30);
+        }
+        right.setLayout(null);
+        jButtons[0].addActionListener(e -> searchBooks(jTextFields[0].getText().trim()));
+        jButtons[1].addActionListener(e -> searchBorrow(jTextFields[1].getText().trim()));
+        jButtons[2].addActionListener(e -> searchReaders(jTextFields[2].getText().trim()));
+    }
+
+    private void searchBooks(String para) {
+        String sql = "select * from tb_bookinfo where bookname like ? or author like ? or isbn like ?";
+        String[] tableTitle = Const.tableBookTitle;
+        performSearch(sql, tableTitle, para);
+    }
+
+    private void searchBorrow(String para) {
+        String sql = "select id, readername, bookname, borrowTime, backTime from tb_borrowview " +
+                "where id like ? or readername like ? or bookname like ?";
+        String[] tableTitle = Const.tableBorrowTitle;
+        performSearch(sql, tableTitle, para);
+    }
+
+    private void searchReaders(String para) {
+        String sql = "select id, name, sex, papertype, paperno, tel, email from tb_readerview " +
+                "where name like ? or paperNO like ? or email like ?";
+        String[] tableTitle = Const.tableReaderTitle;
+        performSearch(sql, tableTitle, para);
+    }
+
+    private void performSearch(String sql, String[] tableTitle, String para) {
+        DBUtil dbUtil = new DBUtil();
+        dbUtil.getconn();
+
+        try {
+            // Use a prepared statement for the count query
+            String countQuery = "SELECT COUNT(*) AS count FROM (" + sql + ") AS result";
+            dbUtil.exequeryppst(countQuery, "%" + para + "%", "%" + para + "%", "%" + para + "%");
+
+            int rscount = 0;
+
+            // Get the count of records
+            if (dbUtil.rs.next()) {
+                rscount = dbUtil.rs.getInt("count");
+            }
+
+            String[][] tableData = new String[rscount][tableTitle.length];
+
+            // Reset the result set and execute the main query
+            dbUtil.rs = null;
+            dbUtil.exequeryppst(sql, "%" + para + "%", "%" + para + "%", "%" + para + "%");
+
+            int i = 0;
+            while (dbUtil.rs.next()) {
+                for (int j = 0; j < tableTitle.length; j++) {
+                    tableData[i][j] = dbUtil.rs.getString(tableTitle[j]);
+                }
+                i++;
+            }
+
+            DefaultTableModel defaultTableModel = new DefaultTableModel(tableData, tableTitle);
+            jTable.setModel(defaultTableModel);
+            jTable.repaint();
+
+        } catch (SQLException e) {
+            System.out.println("查询数据出错");
+            e.printStackTrace();
+        } finally {
+            dbUtil.close();
+        }
+    }
+
+
+
+    private void createBottomPanel() {
+        JPanel bottom = new JPanel();
+        JLabel bottomText = new JLabel("LibraryManagementSystem version 1.0  CopyRight:23983873@qq.com");
         bottom.add(bottomText);
-        add(bottom,BorderLayout.SOUTH);
+        add(bottom, BorderLayout.SOUTH);
+    }
+
+    private void createTable() {
+        defaultTableModel = new DefaultTableModel(new String[0][0], Const.tableBookTitle);
+        jTable = new JTable(defaultTableModel);
+        jTable.setRowHeight(35);
+        jTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);
+        JScrollPane jScrollPane = new JScrollPane(jTable);
+        add(jScrollPane, BorderLayout.CENTER);
+    }
+
+    private void setupListeners() {
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent e) {
                 System.exit(0);
             }
         });
-        DBUtil dbUtil=new DBUtil();//创建数据库对象
-        dbUtil.getconn();//建立连接
-        dbUtil.exequerystmt("select count(*) as count from tb_bookinfo");//查询统计记录数
-        int rscount=0;//记录数
+    }
+
+    private void loadBookInfoData() {
+        loadTableData("tb_bookinfo", Const.tableBookTitle);
+    }
+
+    private void loadTableData(String tableName, String[] tableTitle) {
+        DBUtil dbUtil = new DBUtil();
+        dbUtil.getconn();
+
+        String countQuery = "select count(*) as count from " + tableName;
+
+        dbUtil.exequerystmt(countQuery);
+        int rscount = 0;
+
         try {
-            if (dbUtil.rs.next())
-                rscount=dbUtil.rs.getInt("count");//把查询统计的结果放到记录数中
+            if (dbUtil.rs.next()) {
+                rscount = dbUtil.rs.getInt("count");
+            }
         } catch (SQLException ex) {
             System.out.println("查询统计记录数出错");
             ex.printStackTrace();
         }
-        String[][] tableData =new String[rscount][Const.tableBookTitle.length];//根据行数创建数组
+
+        String[][] tableData = new String[rscount][tableTitle.length];
+
+        String selectQuery = "select * from " + tableName;
+
         try {
-            int i=0;
-            dbUtil.exequerystmt("select * from tb_bookinfo");//重新执行查询
-            while (dbUtil.rs.next()){//把记录集的数据写入到数组中
-                tableData[i][0]=dbUtil.rs.getString("id");
-                tableData[i][1]=dbUtil.rs.getString("bookname");
-                tableData[i][2]=dbUtil.rs.getString("author");
-                tableData[i][3]=dbUtil.rs.getString("isbn");
-                tableData[i][4]=dbUtil.rs.getString("price");
-                tableData[i][5]=dbUtil.rs.getString("storage");
+            int i = 0;
+            dbUtil.exequerystmt(selectQuery);
+            while (dbUtil.rs.next()) {
+                for (int j = 0; j < tableTitle.length; j++) {
+                    tableData[i][j] = dbUtil.rs.getString(tableTitle[j]);
+                }
                 i++;
             }
         } catch (SQLException e) {
@@ -69,108 +193,85 @@ public class MainWindow extends UniversalWindow {
             e.printStackTrace();
         }
 
-        DefaultTableModel defaultTableModel = new DefaultTableModel(tableData,Const.tableBookTitle);//创建表格模型
-        JTable jTable = new JTable(defaultTableModel);//创建表格
-        jTable.setRowHeight(35);//设置行高
-        jTable.setAutoResizeMode(JTable.AUTO_RESIZE_ALL_COLUMNS);//设置列宽
-        JScrollPane jScrollPane = new JScrollPane(jTable);//把表格放入到滚动面板中
-        add(jScrollPane,BorderLayout.CENTER);//把滚动面板放置到左侧，如果这里先放一个面板JPane，再把表格放置到面板中，无法控制表格的大小。不知道为什么，有待研究
         dbUtil.close();
-        JTextField[] jTextFields = {new JTextField(),new JTextField(),new JTextField()};
-        JButton[] jButtons={new JButton("图书查询"),new JButton("借阅查询"),new JButton("读者查询")};
-        for (int j=0;j<jTextFields.length;j++){
-            right.add(jTextFields[j]).setBounds((int)(getWidth()*0.2-110)/2,30+j*120,110,30);
-            right.add(jButtons[j]).setBounds((int)(getWidth()*0.2-100)/2,70+j*120,100,30);
-        }
-        right.setLayout(null);
-        //图书查询
-        jButtons[0].addActionListener(e -> {
-            String para = "%"+jTextFields[0].getText().trim()+"%";//作为数据库查询的参数
-            String sqlbook0 = "select * from tb_bookinfo where bookname like ? or author like ? or isbn like ?";
-            while (defaultTableModel.getRowCount()>0)//删除原来表格的数据
-                defaultTableModel.removeRow(0);
-            DBUtil dbUtil0=new DBUtil();//定义一个数据库对象
-            dbUtil0.getconn();
-            dbUtil0.exequeryppst(sqlbook0,para,para,para);
-            Object[] a =new Object[Const.tableBookTitle.length];//定义一个临时数组来保存查询的数据
-            try {
-                while (dbUtil0.rs.next()) {//把记录集的数据写入到数组中
-                    a[0]=dbUtil0.rs.getString("id");
-                    a[1]=dbUtil0.rs.getString("bookname");
-                    a[2]=dbUtil0.rs.getString("author");
-                    a[3]=dbUtil0.rs.getString("isbn");
-                    a[4]=dbUtil0.rs.getString("price");
-                    a[5]=dbUtil0.rs.getString("storage");
-                    defaultTableModel.addRow(a);//把数据添加到表格模型中
-                }
-                dbUtil0.close();
-            }catch (Exception e0){
-                System.out.println("查询数据出错");
-                e0.printStackTrace();
-            }
-            defaultTableModel.fireTableDataChanged();//通知表格模型数据已经修改,这行代码有没有不影响执行效果
-            jTable.repaint();//重新绘制表格
-        });
-        //借阅查询
-        jButtons[1].addActionListener(e -> {
-            String para = "%"+jTextFields[1].getText().trim()+"%";//作为数据库查询的参数
-            String sqlbook1 = "select id,readername,bookname,borrowTime,backTime from tb_borrowview where id like ? or readername like ? or bookname like ?";
-//                String[][] tableData1=new String[0][0];//重新定义保存数据的二维数组
-//                DBUtil dbUtil1=new DBUtil();//定义一个数据库对象
-//                dbUtil1.getconn();
-//                String sqltemp="select count(*) as count from tb_borrowview ";//查询统计记录
-//                dbUtil1.exequeryppst(sqltemp);
-//                int rscount=0;//记录数
-//                try {
-//                    if (dbUtil1.rs.next())
-//                        rscount=dbUtil1.rs.getInt("count");//把查询统计的结果放到记录数中
-//                } catch (SQLException ex) {
-//                    ex.printStackTrace();
-//                }
-//                dbUtil1.exequeryppst(sqlbook1,para,para,para);
-//                try {
-//                    tableData1=new String[rscount][Const.tableBorrowTitle.length];//根据内容重新定义二维数组
-//                    int i=0;
-//                    while (dbUtil1.rs.next()) {//把记录集的数据写入到数组中
-//                        tableData1[i][0] = dbUtil1.rs.getString("id");
-//                        tableData1[i][1] = dbUtil1.rs.getString("readername");
-//                        tableData1[i][2] = dbUtil1.rs.getString("bookname");
-//                        tableData1[i][3] = dbUtil1.rs.getString("borrowTime");
-//                        tableData1[i][4] = dbUtil1.rs.getString("backTime");
-//                        i++;
-//                    }
-//                    dbUtil1.close();
-//                }catch (Exception e1){
-//                    e1.printStackTrace();
-//                }
-//                DefaultTableModel defaultTableModel1=new DefaultTableModel(tableData1,Const.tableBorrowTitle);
-            DataOperation dataOperation=new DataOperation();
-            dataOperation.getResultCount("select count(*) as count from tb_borrowview");
-            dataOperation.initData(Const.tableBorrowTitle.length);
-            Object[][] data= (Object[][]) dataOperation.getData(sqlbook1,para,para,para);
-            DefaultTableModel defaultTableModel1=new DefaultTableModel(data,Const.tableBorrowTitle);
-            jTable.setModel(defaultTableModel1);//重新设置表格模型
-            jTable.repaint();//重新绘制表格
-        });
-        //读者查询
-        jButtons[2].addActionListener(e -> {
-            String para = "%"+jTextFields[2].getText().trim()+"%";
-            String sqlbook2 = "select id,name,sex,papertype,paperno,tel,email from tb_readerview where name  like ? or paperNO like ? or email like ?";
-            DataOperation dataOperation=new DataOperation();
-            dataOperation.getResultCount("select count(*) as count from tb_readerview");
-            dataOperation.initData(Const.tableReaderTitle.length);
-            Object[][] data= (Object[][]) dataOperation.getData(sqlbook2,para,para,para);
-            DefaultTableModel defaultTableModel2=new DefaultTableModel(data,Const.tableReaderTitle);
-            jTable.setModel(defaultTableModel2);//重新设置表格模型
-            jTable.repaint();//重新绘制表格
-            dataOperation.dbclose();
-        });
-        dbUtil.close();
-        setVisible(true);
+        defaultTableModel.setDataVector(tableData, tableTitle);
     }
 
-//    public static void main(String[] args) {
-//        new MainWindow("图书管理系统",800,600);
-//    }
+    private JMenuItem[] getMenuItems(int index) {
+        switch (index) {
+            case 0: // 系统信息
+                return createMenuItems(Const.menuItemsSystem);
+            case 1: // 读者管理
+                return createMenuItems(Const.menuItemsReader);
+            case 2: // 图书管理
+                return createMenuItems(Const.menuItemsBook);
+            case 3: // 借阅管理
+                return createMenuItems(Const.menuItemsBorrow);
+            case 4: // 用户管理
+                return createMenuItems(Const.menuItemsUser);
+            default:
+                return new JMenuItem[0];
+        }
+    }
+
+    private JMenuItem[] createMenuItems(String[] itemNames) {
+        JMenuItem[] menuItems = new JMenuItem[itemNames.length];
+        for (int i = 0; i < itemNames.length; i++) {
+            menuItems[i] = new JMenuItem(itemNames[i]);
+            menuItems[i].setFont(Const.font);
+        }
+        return menuItems;
+    }
+
+    private void handleMenuItemClick(String menuItemText) {
+        switch (menuItemText) {
+            case "系统信息":
+                showTable("tb_library");
+                break;
+            case "读者管理":
+                showTable("tb_readerview");
+                break;
+            case "图书管理":
+                showTable("tb_bookinfo");
+                break;
+            case "借阅管理":
+                showTable("tb_borrowview");
+                break;
+            case "用户管理":
+                showTable("tb_manager");
+                break;
+            // Add more cases for other menu items if needed
+        }
+    }
+
+
+    private void showTable(String tableName) {
+        String[] tableTitle = getTableTitle(tableName);
+        loadTableData(tableName, tableTitle);
+    }
+
+    private String[] getTableTitle(String tableName) {
+        // You may need to implement logic to get the table title based on the table name.
+        // For now, assuming you have a constant in Const class.
+        switch (tableName) {
+            case "tb_library":
+                return Const.menuTitle;
+            case "tb_readerview":
+                return Const.tableReaderTitle;
+            case "tb_bookinfo":
+                return Const.tableBookTitle;
+            case "tb_borrowview":
+                return Const.tableBorrowTitle;
+            case "tb_manager":
+                return Const.tablemanagerTitle;
+            default:
+                return new String[0];
+        }
+    }
+
+
+    public static void main(String[] args) {
+        new MainWindow("图书管理系统",800,600);
+    }
 
 }
