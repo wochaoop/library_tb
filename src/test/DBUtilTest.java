@@ -1,5 +1,4 @@
-package util;
-
+import com.library.util.DBUtil;
 public class DBUtilTest {
     public static void main(String[] args) {
 

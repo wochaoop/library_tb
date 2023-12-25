@@ -1,43 +1,42 @@
-package ui;
+package com.library.service;
 
-import util.DBUtil;
-
+import com.library.util.DBUtil;
 import javax.swing.*;
+public class UserRegister extends UniversalWindow {//用户注册类
 
-public class UserUpdate extends UniversalWindow {
-    public  UserUpdate(String title,int w,int h){
-        super(title,w,h);
-        JLabel[] jLabels={new JLabel("用 户 名"),new JLabel("新 密 码"),new JLabel("密码确认")};
-        JTextField jTextField=new JTextField();
-        JPasswordField[] jPasswordFields={new JPasswordField(),new JPasswordField()};
-        JButton[] jButtons={new JButton("确认"),new JButton("重置")};
+    public UserRegister(String title, int w, int h) {
+        super(title, w, h);
+        JLabel[] jLabels = {new JLabel("用 户 名"), new JLabel("密    码"), new JLabel("密码确认")};
+        JTextField jTextField = new JTextField();
+        JPasswordField[] jPasswordFields = {new JPasswordField(), new JPasswordField()};
+        JButton[] jButtons = {new JButton("注册"), new JButton("重置")};
         for (JLabel jLabel : jLabels) jLabel.setFont(Const.font);
         jTextField.setFont(Const.font);
         jPasswordFields[0].setFont(Const.font);
         jPasswordFields[1].setFont(Const.font);
         jButtons[0].setFont(Const.font);
         jButtons[1].setFont(Const.font);
-        add(jLabels[0]).setBounds(150,20,100,40);
-        add(jLabels[1]).setBounds(150,110,100,40);
-        add(jLabels[2]).setBounds(150,200,100,40);
-        add(jTextField).setBounds(120,60,160,40);
-        add(jPasswordFields[0]).setBounds(120,150,160,40);
-        add(jPasswordFields[1]).setBounds(120,240,160,40);
-        add(jButtons[0]).setBounds(90,310,100,40);
-        add(jButtons[1]).setBounds(210,310,100,40);
+        add(jLabels[0]).setBounds(150, 20, 100, 40);
+        add(jLabels[1]).setBounds(150, 110, 100, 40);
+        add(jLabels[2]).setBounds(150, 200, 100, 40);
+        add(jTextField).setBounds(120, 60, 160, 40);
+        add(jPasswordFields[0]).setBounds(120, 150, 160, 40);
+        add(jPasswordFields[1]).setBounds(120, 240, 160, 40);
+        add(jButtons[0]).setBounds(90, 310, 100, 40);
+        add(jButtons[1]).setBounds(210, 310, 100, 40);
         jButtons[1].addActionListener(e -> {
             jTextField.setText("");
             jPasswordFields[0].setText("");
             jPasswordFields[1].setText("");
         });
         jButtons[0].addActionListener(e -> {
-            DBUtil dbUtil=new DBUtil();
+            DBUtil dbUtil = new DBUtil();
             dbUtil.getconn();
-            String yhm=jTextField.getText().trim();
-            String mm1=new String(jPasswordFields[0].getPassword()).trim();
-            String mm2=new String(jPasswordFields[0].getPassword()).trim();
-            String sql="select * from tb_manager where name=?";
-            dbUtil.exequeryppst(sql,yhm);
+            String yhm = jTextField.getText().trim();
+            String mm1 = new String(jPasswordFields[0].getPassword()).trim();
+            String mm2 = new String(jPasswordFields[0].getPassword()).trim();
+            String sql = "select * from tb_manager where name=?";
+            dbUtil.exequeryppst(sql, yhm);
             try {
                 if (dbUtil.rs.next())
                     JOptionPane.showMessageDialog(null, "该用户名已经被使用");
@@ -56,7 +55,8 @@ public class UserUpdate extends UniversalWindow {
                     mainWindow.setWinStack(mainWindow, winStack);
                     mainWindow.addWindowListener(new WindowOp());
                 }
-            }catch (Exception e1){
+            } catch (Exception e1) {
+                System.out.println("注册失败");
                 e1.printStackTrace();
             }
         });
@@ -64,6 +64,7 @@ public class UserUpdate extends UniversalWindow {
     }
 
     public static void main(String[] args) {
-        new UserUpdate("",400,440);
+        new UserRegister("", 400, 440);
     }
+
 }
