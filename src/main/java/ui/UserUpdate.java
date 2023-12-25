@@ -3,8 +3,6 @@ package ui;
 import util.DBUtil;
 
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class UserUpdate extends UniversalWindow {
     public  UserUpdate(String title,int w,int h){

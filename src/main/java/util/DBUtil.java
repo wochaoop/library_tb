@@ -14,7 +14,7 @@ public class DBUtil {
         }
     }
 
-    public  void  getconn(){//建立连接
+    public void getconn() {
         try {
             String url = "jdbc:mysql://localhost:3306/library?serverTimezone=GMT%2B8";
             String username = "root";
@@ -25,7 +25,8 @@ public class DBUtil {
             System.out.println("数据库连接失败");
         }
     }
-    public void exequerystmt(String sql){//执行查询语句
+
+    public void exequerystmt(String sql) {
         try {
             rs = stmt.executeQuery(sql);
         }catch (Exception e3){
@@ -56,13 +57,14 @@ public class DBUtil {
         }
     }
 
-    public void exeupdate(String sql){//执行增删改语句
+    public void exeupdate(String sql) {
         try {
             stmt.executeUpdate(sql);
         }catch (Exception e3){
         }
     }
-    public  void  close(){//关闭释放资源
+
+    public void close() {
         try {
             if (rs!=null)     rs.close();
             if (stmt!=null)   stmt.close();
