@@ -11,7 +11,7 @@ public class DBUtil {
             Class.forName("com.mysql.cj.jdbc.Driver");
         }catch (Exception e1){}
     }
-    private String url="jdbc:mysql://localhost:3306/library?serverTimezone=GMT%2B8";
+    private String url="jdbc:mysql://localhost:3306/library?useSSL=false&serverTimezone=UTC&characterEncoding=UTF-8";
     private String username="root";
     private String password="123456";
     public  void  getconn(){//建立连接
@@ -19,6 +19,8 @@ public class DBUtil {
             conn= DriverManager.getConnection(url,username,password);
             stmt=conn.createStatement();
         }catch (Exception e2){
+            System.out.println("数据库连接失败");
+            System.out.println(e2.getMessage());
         }
     }
     public void exequerystmt(String sql){//执行查询语句
