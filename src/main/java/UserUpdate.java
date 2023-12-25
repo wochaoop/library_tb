@@ -1,7 +1,5 @@
 import util.DBUtil;
 
-import util.DBUtil;
-
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;

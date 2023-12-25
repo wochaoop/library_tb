@@ -27,19 +27,6 @@ public class DBUtil {
         }catch (Exception e3){
         }
     }
-    public void exeupdateppst(String sql,String...x){
-        try {
-            ppst=conn.prepareStatement(sql);
-            int i=1;
-            if (x.length>0)
-                for (String p:x) {
-                    ppst.setString(i++,p);
-                };
-            ppst.executeUpdate();
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-    }
 
     public void exequeryppst(String sql,String...x){
         try {
@@ -51,6 +38,20 @@ public class DBUtil {
                 }
             rs=ppst.executeQuery();
         }catch (Exception e){
+        }
+    }
+
+    public void exeupdateppst(String sql,String...x){
+        try {
+            ppst=conn.prepareStatement(sql);
+            int i=1;
+            if (x.length>0)
+                for (String p:x) {
+                    ppst.setString(i++,p);
+                };
+            ppst.executeUpdate();
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 
